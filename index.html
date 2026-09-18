@@ -1,0 +1,1280 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal BioPreserve - Central de Monitoramento</title>
+
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-sidebar: #0f172a;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --brand-color: #2563eb;
+            --brand-hover: #1d4ed8;
+            --success-color: #16a34a;
+            --accent-bg: #eff6ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           TELA INICIAL DO JOGO
+        ========================= */
+
+        .start-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            z-index: 2000;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .start-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .start-box {
+            width: min(90%, 480px);
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #eff6ff;
+            color: #2563eb;
+            border-radius: 50%;
+
+            font-size: 2rem;
+        }
+
+        .start-box h1 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .start-box p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .start-button {
+            width: 100%;
+            padding: 14px 20px;
+
+            border: none;
+            border-radius: 9px;
+
+            background: var(--brand-color);
+            color: white;
+
+            font-size: 1rem;
+            font-weight: 700;
+
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .start-button:hover {
+            background: var(--brand-hover);
+        }
+
+        .start-button:active {
+            transform: scale(0.98);
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        aside {
+            width: 250px;
+            background-color: var(--bg-sidebar);
+            color: #94a3b8;
+
+            display: flex;
+            flex-direction: column;
+
+            padding: 24px 16px;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+
+            margin-bottom: 32px;
+            padding: 0 8px;
+        }
+
+        .brand svg {
+            fill: #38bdf8;
+            width: 28px;
+            height: 28px;
+        }
+
+        .nav-menu {
+            list-style: none;
+
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 10px 12px;
+
+            border-radius: 8px;
+
+            font-size: 0.9rem;
+            color: #94a3b8;
+
+            text-decoration: none;
+
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background-color: #1e293b;
+            color: #f8fafc;
+        }
+
+        .nav-item.active {
+            border-left: 3px solid #38bdf8;
+        }
+
+        /* =========================
+           CONTEÚDO PRINCIPAL
+        ========================= */
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* =========================
+           TOPBAR
+        ========================= */
+
+        header {
+            background-color: var(--bg-surface);
+
+            height: 64px;
+
+            border-bottom: 1px solid var(--border-color);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 32px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            background: var(--bg-main);
+
+            padding: 8px 14px;
+
+            border-radius: 8px;
+
+            border: 1px solid var(--border-color);
+
+            width: 300px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+
+            border-radius: 50%;
+
+            background-color: #2563eb;
+            color: #fff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .user-info {
+            font-size: 0.85rem;
+        }
+
+        .user-info .name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-info .role {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        main {
+            padding: 32px;
+
+            max-width: 1200px;
+            width: 100%;
+
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+
+            margin-bottom: 8px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+
+            color: var(--text-primary);
+
+            margin-bottom: 24px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-badge {
+            background-color: #fef3c7;
+            color: #d97706;
+
+            font-size: 0.8rem;
+            font-weight: 600;
+
+            padding: 4px 12px;
+
+            border-radius: 20px;
+
+            border: 1px solid #fde68a;
+        }
+
+        /* =========================
+           MÉTRICAS
+        ========================= */
+
+        .metrics-grid {
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 16px;
+
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: var(--bg-surface);
+
+            border: 1px solid var(--border-color);
+
+            border-radius: 12px;
+
+            padding: 16px;
+
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+
+            text-transform: uppercase;
+
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+
+            margin-top: 4px;
+
+            color: var(--text-primary);
+        }
+
+        /* =========================
+           DASHBOARD
+        ========================= */
+
+        .dashboard-grid {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+
+            border-radius: 12px;
+
+            border: 1px solid var(--border-color);
+
+            padding: 24px;
+
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            border-bottom: 1px solid var(--border-color);
+
+            padding-bottom: 12px;
+
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+
+            color: var(--text-primary);
+        }
+
+        .card-header p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+
+            margin-top: 2px;
+        }
+
+        /* =========================
+           LISTA DE DADOS
+        ========================= */
+
+        .data-list {
+            display: flex;
+            flex-direction: column;
+
+            gap: 12px;
+        }
+
+        .data-item {
+            background: var(--bg-main);
+
+            padding: 12px 16px;
+
+            border-radius: 8px;
+
+            border: 1px solid var(--border-color);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+
+            font-weight: 500;
+        }
+
+        .data-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+
+            color: var(--brand-color);
+
+            background: var(--accent-bg);
+
+            padding: 4px 10px;
+
+            border-radius: 6px;
+        }
+
+        /* =========================
+           FORMULÁRIO
+        ========================= */
+
+        form {
+            display: flex;
+            flex-direction: column;
+
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+
+            gap: 6px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 500;
+
+            color: var(--text-primary);
+        }
+
+        input {
+            padding: 10px 14px;
+
+            border-radius: 8px;
+
+            border: 1px solid var(--border-color);
+
+            font-size: 0.9rem;
+
+            outline: none;
+
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--brand-color);
+
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-submit {
+            margin-top: 8px;
+
+            padding: 12px;
+
+            background-color: var(--brand-color);
+
+            color: #ffffff;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-weight: 600;
+            font-size: 0.95rem;
+
+            cursor: pointer;
+
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--brand-hover);
+        }
+
+        /* =========================
+           MODAL FINAL
+        ========================= */
+
+        .modal-overlay {
+            position: fixed;
+
+            inset: 0;
+
+            background: rgba(15, 23, 42, 0.6);
+
+            backdrop-filter: blur(4px);
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            visibility: hidden;
+            opacity: 0;
+
+            transition: opacity 0.2s;
+
+            z-index: 999;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--bg-surface);
+
+            border-radius: 16px;
+
+            padding: 32px;
+
+            max-width: 420px;
+
+            width: 90%;
+
+            text-align: center;
+
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-icon {
+            width: 48px;
+            height: 48px;
+
+            background: #dcfce7;
+            color: var(--success-color);
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin: 0 auto 16px;
+
+            font-size: 1.5rem;
+        }
+
+        .stat-box {
+            background: var(--bg-main);
+
+            border: 1px solid var(--border-color);
+
+            padding: 16px;
+
+            border-radius: 8px;
+
+            margin: 20px 0;
+
+            text-align: left;
+        }
+
+        .stat-line {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-bottom: 8px;
+
+            font-size: 0.9rem;
+
+            color: var(--text-secondary);
+        }
+
+        .stat-line:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* =========================
+           RESPONSIVIDADE
+        ========================= */
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =================================
+         TELA DE INÍCIO
+    ================================== -->
+
+    <div class="start-overlay" id="startOverlay">
+
+        <div class="start-box">
+
+            <div class="start-icon">
+                ▶
+            </div>
+
+            <h1>Pronto para começar?</h1>
+
+            <p>
+                Você terá que analisar as informações disponíveis
+                e preencher o protocolo de acionamento corretamente.
+                O tempo começará a ser contado quando você clicar em
+                "Iniciar jogo".
+            </p>
+
+            <button class="start-button" id="startButton">
+                Iniciar jogo
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================
+         SIDEBAR
+    ================================== -->
+
+    <aside>
+
+        <div class="brand">
+
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+
+            <span>BioPreserve</span>
+
+        </div>
+
+        <ul class="nav-menu">
+
+            <li>
+                <a href="#" class="nav-item active">
+                    📊 Monitoramento
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="nav-item">
+                    📍 Mapeamento
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="nav-item">
+                    📜 Ocorrências
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="nav-item">
+                    ⚙️ Configurações
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- =================================
+         CONTEÚDO PRINCIPAL
+    ================================== -->
+
+    <div class="main-wrapper">
+
+        <header>
+
+            <div class="search-bar">
+
+                <span>🔍</span>
+
+                <input
+                    type="text"
+                    placeholder="Buscar registros ou espécies..."
+                >
+
+            </div>
+
+            <div class="user-profile">
+
+                <div class="avatar">
+                    AG
+                </div>
+
+                <div class="user-info">
+
+                    <div class="name">
+                        Agente Silva
+                    </div>
+
+                    <div class="role">
+                        Campo & Operações
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <main>
+
+            <div class="breadcrumb">
+                Central de Controle / Fauna Silvestre / Registro #2026
+            </div>
+
+
+            <div class="page-title">
+
+                <span>
+                    Resgate e Localização de Fauna
+                </span>
+
+                <span class="status-badge">
+                    ⚠️ Alerta Ativo
+                </span>
+
+            </div>
+
+
+            <!-- MÉTRICAS -->
+
+            <div class="metrics-grid">
+
+                <div class="metric-card">
+
+                    <div class="metric-title">
+                        Espécie Monitorada
+                    </div>
+
+                    <div class="metric-value">
+                        Capivara (Jubileu)
+                    </div>
+
+                </div>
+
+
+                <div class="metric-card">
+
+                    <div class="metric-title">
+                        Último Sinal GPS
+                    </div>
+
+                    <div class="metric-value">
+                        Há 4 min
+                    </div>
+
+                </div>
+
+
+                <div class="metric-card">
+
+                    <div class="metric-title">
+                        Status da Equipe
+                    </div>
+
+                    <div class="metric-value">
+                        Pronta para envio
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DASHBOARD -->
+
+            <div class="dashboard-grid">
+
+
+                <!-- DADOS -->
+
+                <section class="card">
+
+                    <div class="card-header">
+
+                        <h2>
+                            📋 Dados Interceptados do Sinal
+                        </h2>
+
+                        <p>
+                            Consulte as credenciais recebidas pelo transmissor de campo:
+                        </p>
+
+                    </div>
+
+
+                    <div class="data-list">
+
+                        <div class="data-item">
+
+                            <span class="data-label">
+                                Código do Transmissor GPS
+                            </span>
+
+                            <span class="data-value">
+                                JUBI-2026
+                            </span>
+
+                        </div>
+
+
+                        <div class="data-item">
+
+                            <span class="data-label">
+                                Setor de Localização
+                            </span>
+
+                            <span class="data-value">
+                                Setor B4
+                            </span>
+
+                        </div>
+
+
+                        <div class="data-item">
+
+                            <span class="data-label">
+                                Isca / Alimento Recomendado
+                            </span>
+
+                            <span class="data-value">
+                                Melancia
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- FORMULÁRIO -->
+
+                <section class="card">
+
+                    <div class="card-header">
+
+                        <h2>
+                            🚀 Protocolo de Acionamento
+                        </h2>
+
+                        <p>
+                            Preencha os dados abaixo para despachar a equipe de resgate:
+                        </p>
+
+                    </div>
+
+
+                    <form id="rescueForm">
+
+                        <div class="form-group">
+
+                            <label for="gps">
+                                Código do Transmissor GPS:
+                            </label>
+
+                            <input
+                                type="text"
+                                id="gps"
+                                placeholder="Ex: JUBI-2026"
+                                required
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="sector">
+                                Setor de Localização:
+                            </label>
+
+                            <input
+                                type="text"
+                                id="sector"
+                                placeholder="Ex: Setor B4"
+                                required
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="food">
+                                Isca Recomendada:
+                            </label>
+
+                            <input
+                                type="text"
+                                id="food"
+                                placeholder="Ex: Melancia"
+                                required
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn-submit"
+                        >
+                            Confirmar e Disparar Resgate
+                        </button>
+
+                    </form>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- =================================
+         MODAL FINAL
+    ================================== -->
+
+    <div class="modal-overlay" id="resultModal">
+
+        <div class="modal-content">
+
+            <div class="modal-icon">
+                ✓
+            </div>
+
+            <h2 style="font-size: 1.25rem; color: var(--text-primary);">
+                Protocolo Registrado!
+            </h2>
+
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+                Métricas do participante coletadas para análise:
+            </p>
+
+
+            <div class="stat-box">
+
+                <div class="stat-line">
+
+                    <span>
+                        Tempo Total:
+                    </span>
+
+                    <span
+                        class="highlight"
+                        id="timeResult"
+                    >
+                        0s
+                    </span>
+
+                </div>
+
+
+                <div class="stat-line">
+
+                    <span>
+                        Total de Cliques:
+                    </span>
+
+                    <span
+                        class="highlight"
+                        id="clicksResult"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="stat-line">
+
+                    <span>
+                        Acertos de Dados:
+                    </span>
+
+                    <span
+                        class="highlight"
+                        id="accuracyResult"
+                    >
+                        0 / 3
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">
+                Avisem os pesquisadores para anotarem esses valores no formulário do grupo.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================
+         JAVASCRIPT
+    ================================== -->
+
+    <script>
+
+        /*
+        ==========================================
+        VARIÁVEIS DO JOGO
+        ==========================================
+        */
+
+        let startTime = null;
+        let endTime = null;
+
+        let clickCount = 0;
+
+        let gameStarted = false;
+        let gameFinished = false;
+
+
+        /*
+        ==========================================
+        ELEMENTOS
+        ==========================================
+        */
+
+        const startOverlay = document.getElementById("startOverlay");
+        const startButton = document.getElementById("startButton");
+
+        const form = document.getElementById("rescueForm");
+        const modal = document.getElementById("resultModal");
+
+
+        /*
+        ==========================================
+        RESPOSTAS CORRETAS
+        ==========================================
+        */
+
+        const CORRECT_GPS = "jubi-2026";
+        const CORRECT_SECTOR = "setor b4";
+        const CORRECT_FOOD = "melancia";
+
+
+        /*
+        ==========================================
+        INICIAR JOGO
+        ==========================================
+        */
+
+        startButton.addEventListener("click", function () {
+
+            // O jogo começa EXATAMENTE neste momento.
+            startTime = Date.now();
+
+            // Reinicia os dados da pesquisa.
+            clickCount = 0;
+
+            gameStarted = true;
+            gameFinished = false;
+
+            // Esconde a tela de início.
+            startOverlay.classList.add("hidden");
+
+        });
+
+
+        /*
+        ==========================================
+        CONTADOR DE CLIQUES
+        ==========================================
+        */
+
+        document.addEventListener("click", function () {
+
+            // Só contabiliza cliques depois que o jogo começou.
+            if (gameStarted && !gameFinished) {
+                clickCount++;
+            }
+
+        });
+
+
+        /*
+        ==========================================
+        FINALIZAR JOGO
+        ==========================================
+        */
+
+        form.addEventListener("submit", function (e) {
+
+            e.preventDefault();
+
+            // Impede finalizar duas vezes.
+            if (!gameStarted || gameFinished) {
+                return;
+            }
+
+
+            /*
+            ======================================
+            PARA O CRONÔMETRO
+            ======================================
+            */
+
+            endTime = Date.now();
+
+            gameFinished = true;
+
+
+            /*
+            ======================================
+            CALCULA O TEMPO
+            ======================================
+            */
+
+            const totalSeconds =
+                ((endTime - startTime) / 1000).toFixed(2);
+
+
+            /*
+            ======================================
+            PEGA AS RESPOSTAS
+            ======================================
+            */
+
+            const userGps =
+                document.getElementById("gps")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+            const userSector =
+                document.getElementById("sector")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+            const userFood =
+                document.getElementById("food")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+
+            /*
+            ======================================
+            CALCULA OS ACERTOS
+            ======================================
+            */
+
+            let score = 0;
+
+            if (userGps === CORRECT_GPS) {
+                score++;
+            }
+
+            if (userSector === CORRECT_SECTOR) {
+                score++;
+            }
+
+            if (userFood === CORRECT_FOOD) {
+                score++;
+            }
+
+
+            /*
+            ======================================
+            MOSTRA OS RESULTADOS
+            ======================================
+            */
+
+            document.getElementById("timeResult").textContent =
+                totalSeconds + "s";
+
+            document.getElementById("clicksResult").textContent =
+                clickCount;
+
+            document.getElementById("accuracyResult").textContent =
+                score + " / 3";
+
+
+            /*
+            ======================================
+            ABRE O MODAL FINAL
+            ======================================
+            */
+
+            modal.classList.add("active");
+
+        });
+
+    </script>
+
+</body>
+</html>
+```
